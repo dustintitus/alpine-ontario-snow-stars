@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Clubs{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Manage Clubs</h2>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+  </div>
+
+<div class="card">
+    <h3>Create New Club</h3>
+    <form method="POST" action="{{ url_for('create_club') }}">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Club</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Existing Clubs</h3>
+    {% if clubs %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for club in clubs %}
+            <tr>
+                <td>{{ club.name }}</td>
+                <td>{{ club.description or '' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_club', club_id=club.id) }}" style="display: inline-block;">
+                        <input type="text" name="name" value="{{ club.name }}" style="width: 200px;">
+                        <input type="text" name="description" value="{{ club.description or '' }}" style="width: 300px;">
+                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('delete_club', club_id=club.id) }}" style="display: inline-block;" onsubmit="return confirm('Delete this club?');">
+                        <button type="submit" class="btn btn-sm" style="background: var(--error-color); color: white;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No clubs yet. Create one above.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+

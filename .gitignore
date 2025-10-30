@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+instance/
+*.sqlite
+*.db
+cookies.txt
+app.log
+.env
+venv/
+.venv/

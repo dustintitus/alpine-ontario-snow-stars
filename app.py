@@ -36,9 +36,6 @@ def init_db():
         if not Club.query.filter_by(name='Alpine Ontario').first():
             aoa = Club(name='Alpine Ontario', description='Provincial sport organization')
             db.session.add(aoa)
-        if not Club.query.filter_by(name='Horseshoe Valley Ski Club').first():
-            hs = Club(name='Horseshoe Valley Ski Club')
-            db.session.add(hs)
         
         # Create admin
         if not User.query.filter_by(username='admin').first():
@@ -52,7 +49,7 @@ def init_db():
             )
             db.session.add(admin)
         
-        # Create Horseshoe Valley Programs with frequency settings
+        # Create sample programs with frequency settings
         programs_data = [
             ('Snowflakes', 'Early learning program for young beginners', 'weekly', 8, 'saturday'),
             ('High Flyers', 'Advanced program for developing competitive skiers', 'daily', 8, None),
@@ -95,7 +92,7 @@ def init_db():
                 program_id=snowflakes_program.id,
                 coach_id=2,
                 team_type='class',
-                club_id=Club.query.filter_by(name='Horseshoe Valley Ski Club').first().id if Club.query.filter_by(name='Horseshoe Valley Ski Club').first() else None
+                club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
             )
             db.session.add(team)
             db.session.flush()  # Get the team ID
@@ -114,7 +111,7 @@ def init_db():
                 participates_snow_stars=True,
                 coach_id=2,
                 team_id=demo_team.id,
-                club_id=Club.query.filter_by(name='Horseshoe Valley Ski Club').first().id if Club.query.filter_by(name='Horseshoe Valley Ski Club').first() else None
+                club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
             )
             db.session.add(student)
         

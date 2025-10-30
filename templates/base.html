@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Snow School{% endblock %}</title>
+    <title>{% block title %}Alpine Ontario Snow Stars{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -11,8 +11,7 @@
     <nav class="navbar">
         <div class="container">
             <div class="logo-container">
-                <img src="{{ url_for('static', filename='img/horseshoe-logo.png') }}" alt="Horseshoe Valley Resort" class="logo-img" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';">
-                <h1 class="logo logo-text" style="display: block !important;">Snow School</h1>
+                <h1 class="logo logo-text">Alpine Ontario Snow Stars</h1>
             </div>
             <ul class="nav-links">
                 {% if current_user.is_authenticated %}

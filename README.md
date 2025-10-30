@@ -144,3 +144,4 @@ MIT License - Feel free to use and modify as needed.
 - Adds Club model and admin
 - Snow Stars-only evaluations
 - UI updates
+# Vercel integration test

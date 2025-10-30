@@ -18,8 +18,8 @@
         <p>Total Users</p>
     </div>
     <div class="stat-card">
-        <h3>{{ users|selectattr('user_type', 'equalto', 'instructor')|list|length }}</h3>
-        <p>Instructors</p>
+        <h3>{{ users|selectattr('user_type', 'equalto', 'coach')|list|length }}</h3>
+        <p>Coaches</p>
     </div>
     <div class="stat-card">
         <h3>{{ users|selectattr('user_type', 'equalto', 'student')|list|length }}</h3>
@@ -37,7 +37,7 @@
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>User Type</th>
-                <th>Instructor</th>
+                <th>Coach</th>
             </tr>
         </thead>
         <tbody>
@@ -48,7 +48,7 @@
                 <td>{{ user.full_name }}</td>
                 <td>{{ user.email }}</td>
                 <td><span class="badge badge-{{ user.user_type }}">{{ user.user_type }}</span></td>
-                <td>{{ user.instructor.full_name if user.instructor else '-' }}</td>
+                <td>{{ user.coach.full_name if user.coach else '-' }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -36,12 +36,12 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     program_id = db.Column(db.Integer, db.ForeignKey('program.id'), nullable=False)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=True)
     team_type = db.Column(db.String(20), nullable=False, default='class')  # 'class' for STEP/RIP, 'team' for Snow Stars
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
-    instructor = db.relationship('User', foreign_keys=[instructor_id], backref='managed_teams')
+    coach = db.relationship('User', foreign_keys=[coach_id], backref='managed_teams')
     students = db.relationship('User', foreign_keys='User.team_id', backref='team')
     
     def __repr__(self):
@@ -58,11 +58,11 @@ class User(UserMixin, db.Model):
     participates_skier = db.Column(db.Boolean, default=False)  # Can participate in skiing
     participates_snowboarder = db.Column(db.Boolean, default=False)  # Can participate in snowboarding
     participates_snow_stars = db.Column(db.Boolean, default=False)  # Can participate in Snow Stars
-    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id', use_alter=True), nullable=True)  # For students
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
-    instructor = db.relationship('User', remote_side=[id], foreign_keys=[instructor_id])
+    coach = db.relationship('User', remote_side=[id], foreign_keys=[coach_id])
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -74,7 +74,7 @@ class Attendance(db.Model):
     session_date = db.Column(db.Date, nullable=False)
     attended = db.Column(db.Boolean, default=True)
     notes = db.Column(db.Text, nullable=True)
-    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Instructor who recorded
+    recorded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Coach who recorded
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
     student = db.relationship('User', foreign_keys=[student_id], backref='attendance_records')
@@ -87,7 +87,7 @@ class Attendance(db.Model):
 class Evaluation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     sport_type = db.Column(db.String(20), nullable=False)  # 'skier' or 'snowboarder'
     level = db.Column(db.Integer, nullable=False)  # STEP levels 1-8, RIP levels 1-6
     skills_score = db.Column(db.Float, nullable=False)
@@ -116,7 +116,7 @@ class Evaluation(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     
     student = db.relationship('User', foreign_keys=[student_id], backref='evaluations_received')
-    instructor = db.relationship('User', foreign_keys=[instructor_id])
+    coach = db.relationship('User', foreign_keys=[coach_id])
     
     @property
     def average_score(self):

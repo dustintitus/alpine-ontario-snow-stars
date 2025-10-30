@@ -36,18 +36,18 @@
                 <label for="user_type">User Type</label>
                 <select id="user_type" name="user_type" required onchange="toggleStudentFields()">
                     <option value="admin">Admin</option>
-                    <option value="instructor">Instructor</option>
+                    <option value="coach">Coach</option>
                     <option value="student">Student</option>
                 </select>
             </div>
-            <input type="hidden" id="instructor_id" name="instructor_id" value="">
+            <input type="hidden" id="coach_id" name="coach_id" value="">
             <div class="form-group" id="team_group" style="display: none;">
                 <label for="team_id">Assign to Team</label>
-                <select id="team_id" name="team_id" onchange="updateInstructorFromTeam()">
+                <select id="team_id" name="team_id" onchange="updateCoachFromTeam()">
                     <option value="">Select Team</option>
                     {% for team in teams %}
-                    <option value="{{ team.id }}" data-instructor="{{ team.instructor_id }}">
-                        {{ team.name }} ({{ team.program.name }}) - {{ team.instructor.full_name }}
+                    <option value="{{ team.id }}" data-coach="{{ team.coach_id }}">
+                        {{ team.name }} ({{ team.program.name }}) - {{ team.coach.full_name }}
                     </option>
                     {% endfor %}
                 </select>
@@ -80,15 +80,15 @@ function toggleStudentFields() {
     }
 }
 
-function updateInstructorFromTeam() {
+function updateCoachFromTeam() {
     const teamSelect = document.getElementById('team_id');
-    const instructorInput = document.getElementById('instructor_id');
+    const coachInput = document.getElementById('coach_id');
     const selectedOption = teamSelect.options[teamSelect.selectedIndex];
     
     if (selectedOption.value) {
-        instructorInput.value = selectedOption.getAttribute('data-instructor');
+        coachInput.value = selectedOption.getAttribute('data-coach');
     } else {
-        instructorInput.value = '';
+        coachInput.value = '';
     }
 }
 </script>

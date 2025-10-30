@@ -26,11 +26,11 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="instructor_id">Instructor</label>
-            <select id="instructor_id" name="instructor_id" required>
-                <option value="">Select Instructor</option>
-                {% for instructor in instructors %}
-                <option value="{{ instructor.id }}">{{ instructor.full_name }}</option>
+            <label for="coach_id">Coach</label>
+            <select id="coach_id" name="coach_id" required>
+                <option value="">Select Coach</option-read
+                {% for coach in coaches %}
+                <option value="{{ coach.id }}">{{ coach.full_name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -63,7 +63,7 @@
                 <th>Name</th>
                 <th>Type</th>
                 <th>Program</th>
-                <th>Instructor</th>
+                <th>Coach</th>
                 <th>Students</th>
                 <th>Actions</th>
             </tr>
@@ -88,10 +88,10 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="instructor_id-{{ team.id }}">Instructor</label>
-                                <select id="instructor_id-{{ team.id }}" name="instructor_id" required>
-                                    {% for inst in instructors %}
-                                    <option value="{{ inst.id }}" {% if inst.id == team.instructor_id %}selected{% endif %}>{{ inst.full_name }}</option>
+                                <label for="coach_id-{{ team.id }}">Coach</label>
+                                <select id="coach_id-{{ team.id }}" name="coach_id" required>
+                                    {% for c in coaches %}
+                                    <option value="{{ c.id }}" {% if c.id == team.coach_id %}selected{% endif %}>{{ c.full_name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -118,7 +118,7 @@
                 </td>
                 <td><span class="badge badge-{{ team.team_type }}">{{ team.team_type }}</span></td>
                 <td>{{ team.program.name }}</td>
-                <td>{{ team.instructor.full_name }}</td>
+                <td>{{ team.coach.full_name }}</td>
                 <td>{{ team.students|length }}</td>
                 <td>
                     <button onclick="toggleEdit({{ team.id }})" class="btn btn-sm btn-secondary">Edit</button>

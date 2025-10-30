@@ -57,7 +57,7 @@ def init_db():
             ('Snowflakes', 'Early learning program for young beginners', 'weekly', 8, 'saturday'),
             ('High Flyers', 'Advanced program for developing competitive skiers', 'daily', 8, None),
             ('Trail Blazers', 'Multi-level program for progressive skill development', 'weekly', 6, 'sunday'),
-            ('LIT', 'Leader in Training program for aspiring instructors', 'daily', 10, None),
+            ('LIT', 'Leader in Training program for aspiring coaches', 'daily', 10, None),
             ('Adult', 'Program designed for adult skiers and snowboarders', 'weekly', 4, 'saturday'),
             ('Terrain Park', 'Specialized program for terrain park and freestyle development', 'daily', 6, None)
         ]
@@ -75,17 +75,17 @@ def init_db():
         
         db.session.flush()  # Get the program IDs
         
-        # Create instructor
-        if not User.query.filter_by(username='instructor1').first():
-            instructor = User(
-                username='instructor1',
-                email='instructor@example.com',
-                password_hash=generate_password_hash('instructor123', method='pbkdf2:sha256'),
-                user_type='instructor',
+        # Create coach
+        if not User.query.filter_by(username='coach1').first():
+            coach = User(
+                username='coach1',
+                email='coach@example.com',
+                password_hash=generate_password_hash('coach123', method='pbkdf2:sha256'),
+                user_type='coach',
                 full_name='Coach Johnson'
             )
-            db.session.add(instructor)
-            db.session.flush()  # Get the instructor ID
+            db.session.add(coach)
+            db.session.flush()  # Get the coach ID
         
         # Create team for Snowflakes program
         snowflakes_program = Program.query.filter_by(name='Snowflakes').first()
@@ -93,7 +93,7 @@ def init_db():
             team = Team(
                 name='Snowflakes Demo Team',
                 program_id=snowflakes_program.id,
-                instructor_id=2,
+                coach_id=2,
                 team_type='class',
                 club_id=Club.query.filter_by(name='Horseshoe Valley Ski Club').first().id if Club.query.filter_by(name='Horseshoe Valley Ski Club').first() else None
             )
@@ -112,7 +112,7 @@ def init_db():
                 participates_skier=True,
                 participates_snowboarder=True,  # Can participate in both
                 participates_snow_stars=True,
-                instructor_id=2,
+                coach_id=2,
                 team_id=demo_team.id,
                 club_id=Club.query.filter_by(name='Horseshoe Valley Ski Club').first().id if Club.query.filter_by(name='Horseshoe Valley Ski Club').first() else None
             )
@@ -189,10 +189,10 @@ def dashboard():
     if user_type == 'admin':
         users = User.query.all()
         return render_template('dashboard_admin.html', users=users)
-    elif user_type == 'instructor':
-        # Get students from instructor's teams
-        instructor_teams = Team.query.filter_by(instructor_id=current_user.id).all()
-        team_ids = [team.id for team in instructor_teams]
+    elif user_type == 'coach':
+        # Get students from coach's teams
+        coach_teams = Team.query.filter_by(coach_id=current_user.id).all()
+        team_ids = [team.id for team in coach_teams]
         
         students = []
         if team_ids:
@@ -202,9 +202,9 @@ def dashboard():
             ).all()
         
         recent_evaluations = Evaluation.query.filter_by(
-            instructor_id=current_user.id
+            coach_id=current_user.id
         ).order_by(Evaluation.created_at.desc()).limit(5).all()
-        return render_template('dashboard_instructor.html', students=students, evaluations=recent_evaluations, teams=instructor_teams if instructor_teams else [])
+        return render_template('dashboard_coach.html', students=students, evaluations=recent_evaluations, teams=coach_teams if coach_teams else [])
     else:
         evaluations = Evaluation.query.filter_by(student_id=current_user.id).order_by(Evaluation.level).all()
         return render_template('dashboard_student.html', evaluations=evaluations)
@@ -222,7 +222,7 @@ def register():
         password = request.form.get('password')
         full_name = request.form.get('full_name')
         user_type = request.form.get('user_type')
-        instructor_id = request.form.get('instructor_id')
+        coach_id = request.form.get('coach_id')
         team_id = request.form.get('team_id')
         club_id = request.form.get('club_id')
         participates_skier = request.form.get('participates_skier') == 'on'
@@ -231,7 +231,11 @@ def register():
         
         if User.query.filter_by(username=username).first():
             flash('Username already exists', 'error')
-            return render_template('register.html', instructors=instructors, teams=teams, programs=programs, clubs=clubs)
+            coaches = User.query.filter_by(user_type='coach').all()
+            teams = Team.query.all()
+            programs = Program.query.all()
+            clubs = Club.query.all()
+            return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs)
         
         new_user = User(
             username=username,
@@ -243,7 +247,7 @@ def register():
             participates_skier=participates_skier if user_type == 'student' else False,
             participates_snowboarder=participates_snowboarder if user_type == 'student' else False,
             participates_snow_stars=participates_snow_stars if user_type == 'student' else False,
-            instructor_id=int(instructor_id) if instructor_id else None,
+            coach_id=int(coach_id) if coach_id else None,
             team_id=int(team_id) if team_id and user_type == 'student' else None
         )
         
@@ -252,22 +256,22 @@ def register():
         flash('User created successfully', 'success')
         return redirect(url_for('dashboard'))
     
-    instructors = User.query.filter_by(user_type='instructor').all()
+    coaches = User.query.filter_by(user_type='coach').all()
     teams = Team.query.all()
     programs = Program.query.all()
     clubs = Club.query.all()
-    return render_template('register.html', instructors=instructors, teams=teams, programs=programs, clubs=clubs)
+    return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs)
 
 @app.route('/evaluate/<int:student_id>', methods=['GET', 'POST'])
 @login_required
 def evaluate_student(student_id):
-    if current_user.user_type != 'instructor':
-        flash('Only instructors can evaluate students', 'error')
+    if current_user.user_type != 'coach':
+        flash('Only coaches can evaluate athletes', 'error')
         return redirect(url_for('dashboard'))
     
     student = User.query.get_or_404(student_id)
     
-    if student.user_type != 'student' or student.instructor_id != current_user.id:
+    if student.user_type != 'student' or student.coach_id != current_user.id:
         flash('You can only evaluate your assigned students', 'error')
         return redirect(url_for('dashboard'))
     
@@ -304,7 +308,7 @@ def evaluate_student(student_id):
         
         evaluation = Evaluation(
             student_id=student_id,
-            instructor_id=current_user.id,
+            coach_id=current_user.id,
             sport_type=sport_type,
             level=level,
             skills_score=float(request.form.get('skills_score')),
@@ -365,7 +369,7 @@ def view_evaluation(evaluation_id):
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     
-    if current_user.user_type == 'instructor' and evaluation.instructor_id != current_user.id:
+    if current_user.user_type == 'coach' and evaluation.coach_id != current_user.id:
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     
@@ -392,9 +396,9 @@ def manage_teams():
     
     teams = Team.query.all()
     programs = Program.query.all()
-    instructors = User.query.filter_by(user_type='instructor').all()
+    coaches = User.query.filter_by(user_type='coach').all()
     clubs = Club.query.all()
-    return render_template('manage_teams.html', teams=teams, programs=programs, instructors=instructors, clubs=clubs)
+    return render_template('manage_teams.html', teams=teams, programs=programs, coaches=coaches, clubs=clubs)
 
 @app.route('/admin/create_team', methods=['POST'])
 @login_required
@@ -405,11 +409,11 @@ def create_team():
     
     name = request.form.get('name')
     program_id = int(request.form.get('program_id'))
-    instructor_id = int(request.form.get('instructor_id'))
+    coach_id = int(request.form.get('coach_id'))
     team_type = request.form.get('team_type', 'class')  # 'class' for STEP/RIP, 'team' for Snow Stars
     club_id = request.form.get('club_id')
     
-    team = Team(name=name, program_id=program_id, instructor_id=instructor_id, team_type=team_type, club_id=int(club_id) if club_id else None)
+    team = Team(name=name, program_id=program_id, coach_id=coach_id, team_type=team_type, club_id=int(club_id) if club_id else None)
     db.session.add(team)
     db.session.commit()
     flash('Team created successfully', 'success')
@@ -505,7 +509,7 @@ def update_team(team_id):
     team = Team.query.get_or_404(team_id)
     team.name = request.form.get('name')
     team.program_id = int(request.form.get('program_id'))
-    team.instructor_id = int(request.form.get('instructor_id'))
+    team.coach_id = int(request.form.get('coach_id'))
     team.team_type = request.form.get('team_type')
     club_id = request.form.get('club_id')
     team.club_id = int(club_id) if club_id else None
@@ -595,14 +599,14 @@ def delete_team(team_id):
 @login_required
 def manage_attendance(team_id):
     """Manage attendance for a team"""
-    if current_user.user_type not in ['admin', 'instructor']:
+    if current_user.user_type not in ['admin', 'coach']:
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     
     team = Team.query.get_or_404(team_id)
     
-    # Check if instructor has access to this team
-    if current_user.user_type == 'instructor' and team.instructor_id != current_user.id:
+    # Check if coach has access to this team
+    if current_user.user_type == 'coach' and team.coach_id != current_user.id:
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     
@@ -618,14 +622,14 @@ def manage_attendance(team_id):
 @login_required
 def record_attendance(team_id):
     """Record attendance for a team session"""
-    if current_user.user_type not in ['admin', 'instructor']:
+    if current_user.user_type not in ['admin', 'coach']:
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     
     team = Team.query.get_or_404(team_id)
     
-    # Check if instructor has access to this team
-    if current_user.user_type == 'instructor' and team.instructor_id != current_user.id:
+    # Check if coach has access to this team
+    if current_user.user_type == 'coach' and team.coach_id != current_user.id:
         flash('Access denied', 'error')
         return redirect(url_for('dashboard'))
     

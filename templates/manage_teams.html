@@ -28,7 +28,7 @@
         <div class="form-group">
             <label for="coach_id">Coach</label>
             <select id="coach_id" name="coach_id" required>
-                <option value="">Select Coach</option-read
+                <option value="">Select Coach</option>
                 {% for coach in coaches %}
                 <option value="{{ coach.id }}">{{ coach.full_name }}</option>
                 {% endfor %}

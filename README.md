@@ -139,3 +139,8 @@ athlete_evaluation_app/
 ## License
 
 MIT License - Feel free to use and modify as needed.
+
+## PR: Initial AOA Snow Stars pivot
+- Adds Club model and admin
+- Snow Stars-only evaluations
+- UI updates

@@ -38,7 +38,7 @@ class Team(db.Model):
     program_id = db.Column(db.Integer, db.ForeignKey('program.id'), nullable=False)
     coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=True)
-    team_type = db.Column(db.String(20), nullable=False, default='class')  # 'class' for STEP/RIP, 'team' for Snow Stars
+    team_type = db.Column(db.String(20), nullable=False, default='team')  # Always 'team' now
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
     coach = db.relationship('User', foreign_keys=[coach_id], backref='managed_teams')

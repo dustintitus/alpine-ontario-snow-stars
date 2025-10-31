@@ -91,7 +91,7 @@ def init_db():
                 name='Snowflakes Demo Team',
                 program_id=snowflakes_program.id,
                 coach_id=2,
-                team_type='class',
+                team_type='team',
                 club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
             )
             db.session.add(team)
@@ -407,10 +407,9 @@ def create_team():
     name = request.form.get('name')
     program_id = int(request.form.get('program_id'))
     coach_id = int(request.form.get('coach_id'))
-    team_type = request.form.get('team_type', 'class')  # 'class' for STEP/RIP, 'team' for Snow Stars
     club_id = request.form.get('club_id')
     
-    team = Team(name=name, program_id=program_id, coach_id=coach_id, team_type=team_type, club_id=int(club_id) if club_id else None)
+    team = Team(name=name, program_id=program_id, coach_id=coach_id, team_type='team', club_id=int(club_id) if club_id else None)
     db.session.add(team)
     db.session.commit()
     flash('Team created successfully', 'success')
@@ -507,7 +506,7 @@ def update_team(team_id):
     team.name = request.form.get('name')
     team.program_id = int(request.form.get('program_id'))
     team.coach_id = int(request.form.get('coach_id'))
-    team.team_type = request.form.get('team_type')
+    # team_type is always 'team' now, no need to update
     club_id = request.form.get('club_id')
     team.club_id = int(club_id) if club_id else None
     

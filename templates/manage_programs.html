@@ -89,7 +89,7 @@
                 <th>Name</th>
                 <th>Description</th>
                 <th>Schedule</th>
-                <th>Classes/Teams</th>
+                <th>Teams</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -129,7 +129,7 @@
                         {% endif %}
                     </div>
                 </td>
-                <td>{{ program.teams|length }} {% if program.teams|length == 1 %}class/team{% else %}classes/teams{% endif %}</td>
+                <td>{{ program.teams|length }} {% if program.teams|length == 1 %}team{% else %}teams{% endif %}</td>
                 <td>
                     <button onclick="toggleEdit({{ program.id }})" class="btn btn-sm btn-secondary">Edit</button>
                     {% if program.teams|length == 0 %}

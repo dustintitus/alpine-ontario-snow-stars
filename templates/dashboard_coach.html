@@ -9,12 +9,10 @@
 
 {% if teams %}
 <div class="card">
-    <h3>My Classes & Teams</h3>
+    <h3>My Teams</h3>
     {% for team in teams %}
     <div style="padding: 1rem; margin-bottom: 0.5rem; background: var(--bg-light); border-radius: 0.5rem;">
-        <strong>{{ team.name }}</strong> 
-        <span class="badge badge-{{ team.team_type }}">{{ team.team_type }}</span>
-        - {{ team.program.name }}
+        <strong>{{ team.name }}</strong> - {{ team.program.name }}
         <br><span style="color: var(--text-secondary); font-size: 0.9rem;">{{ team.students|length }} students</span>
     </div>
     {% endfor %}
@@ -40,7 +38,7 @@
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Class/Team</th>
+                <th>Team</th>
                 <th>Program</th>
                 <th>Current Level</th>
                 <th>Actions</th>
@@ -56,7 +54,6 @@
                 <td>
                     {{ student.team.name if student.team else 'Not assigned' }}
                     {% if student.team %}
-                        <span class="badge badge-{{ student.team.team_type }}">{{ student.team.team_type }}</span>
                     {% endif %}
                 </td>
                 <td>

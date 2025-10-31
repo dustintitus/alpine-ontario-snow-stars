@@ -145,3 +145,5 @@ MIT License - Feel free to use and modify as needed.
 - Snow Stars-only evaluations
 - UI updates
 # Vercel integration test
+
+# Repository is now public - Vercel should detect changes

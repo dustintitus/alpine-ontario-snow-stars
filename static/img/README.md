@@ -1,5 +1,5 @@
 # Logo Directory
 
-Please add the Horseshoe Valley Resort logo as `horseshoe-logo.png` to this directory.
+Please add the Alpine Ontario logo as `alpine-ontario-logo.png` to this directory.
 
-The logo will be displayed in the application header. If the logo is not found, the application will display "Snow School" text as a fallback.
+The logo will be displayed on the landing page. If the logo is not found, it will be hidden automatically.

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-        <h2>Register New User</h2>
+        <h2>Add Coach or Admin</h2>
         <form method="POST" action="{{ url_for('register') }}">
             <div class="form-group">
                 <label for="club_id">Club</label>
@@ -37,11 +37,11 @@
                 <select id="user_type" name="user_type" required onchange="toggleStudentFields()">
                     <option value="admin">Admin</option>
                     <option value="coach">Coach</option>
-                    <option value="student">Student</option>
                 </select>
             </div>
             <input type="hidden" id="coach_id" name="coach_id" value="">
             <div class="form-group" id="team_group" style="display: none;">
+                <!-- Hidden for admin/coach creation -->
                 <label for="team_id">Assign to Team</label>
                 <select id="team_id" name="team_id" onchange="updateCoachFromTeam()">
                     <option value="">Select Team</option>
@@ -53,12 +53,7 @@
                 </select>
             </div>
             <div class="form-group" id="sport_group" style="display: none;">
-                <label>Program Participation</label>
-                <div>
-                    <input type="checkbox" id="participates_snow_stars" name="participates_snow_stars">
-                    <label for="participates_snow_stars" style="display: inline; margin-left: 0.5rem;">Racing - Snow Stars (ACA)</label>
-                </div>
-                <small style="color: var(--text-secondary);">Enable Snow Stars to evaluate this athlete</small>
+                <!-- Hidden for admin/coach creation -->
             </div>
             <button type="submit" class="btn btn-primary btn-block">Create User</button>
             <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-block">Cancel</a>
@@ -68,16 +63,11 @@
 
 <script>
 function toggleStudentFields() {
-    const userType = document.getElementById('user_type').value;
+    // Only admin/coach options available, so hide athlete fields
     const teamGroup = document.getElementById('team_group');
     const sportGroup = document.getElementById('sport_group');
-    if (userType === 'student') {
-        teamGroup.style.display = 'block';
-        sportGroup.style.display = 'block';
-    } else {
-        teamGroup.style.display = 'none';
-        sportGroup.style.display = 'none';
-    }
+    teamGroup.style.display = 'none';
+    sportGroup.style.display = 'none';
 }
 
 function updateCoachFromTeam() {

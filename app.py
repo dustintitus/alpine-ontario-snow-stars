@@ -529,6 +529,70 @@ def update_team(team_id):
 
 # Admin routes for managing clubs
 
+@app.route('/admin/athletes')
+@login_required
+def manage_athletes():
+    if current_user.user_type != 'admin':
+        flash('Access denied', 'error')
+        return redirect(url_for('dashboard'))
+    
+    athletes = User.query.filter_by(user_type='student').all()
+    teams = Team.query.all()
+    clubs = Club.query.all()
+    return render_template('manage_athletes.html', athletes=athletes, teams=teams, clubs=clubs)
+
+@app.route('/admin/create_athlete', methods=['POST'])
+@login_required
+def create_athlete():
+    if current_user.user_type != 'admin':
+        flash('Access denied', 'error')
+        return redirect(url_for('dashboard'))
+    
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    full_name = request.form.get('full_name')
+    club_id = request.form.get('club_id')
+    team_id = request.form.get('team_id')
+    coach_id = request.form.get('coach_id')
+    participates_snow_stars = request.form.get('participates_snow_stars') == 'on'
+    
+    if User.query.filter_by(username=username).first():
+        flash('Username already exists', 'error')
+        return redirect(url_for('manage_athletes'))
+    
+    new_athlete = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password, method='pbkdf2:sha256'),
+        full_name=full_name,
+        user_type='student',
+        club_id=int(club_id) if club_id else None,
+        participates_snow_stars=participates_snow_stars,
+        coach_id=int(coach_id) if coach_id else None,
+        team_id=int(team_id) if team_id else None
+    )
+    
+    db.session.add(new_athlete)
+    db.session.commit()
+    flash('Athlete created successfully', 'success')
+    return redirect(url_for('manage_athletes'))
+
+@app.route('/admin/athlete/<int:athlete_id>')
+@login_required
+def view_athlete(athlete_id):
+    if current_user.user_type != 'admin':
+        flash('Access denied', 'error')
+        return redirect(url_for('dashboard'))
+    
+    athlete = User.query.get_or_404(athlete_id)
+    if athlete.user_type != 'student':
+        flash('User is not an athlete', 'error')
+        return redirect(url_for('dashboard'))
+    
+    evaluations = Evaluation.query.filter_by(student_id=athlete_id).order_by(Evaluation.created_at.desc()).all()
+    return render_template('view_athlete.html', athlete=athlete, evaluations=evaluations)
+
 @app.route('/admin/clubs')
 @login_required
 def manage_clubs():

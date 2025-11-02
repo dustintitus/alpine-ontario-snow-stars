@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}View Athlete{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Athlete Profile</h2>
+    
+    <div class="evaluation-info">
+        <div class="info-row">
+            <strong>Name:</strong> {{ athlete.full_name }}
+        </div>
+        <div class="info-row">
+            <strong>Username:</strong> {{ athlete.username }}
+        </div>
+        <div class="info-row">
+            <strong>Email:</strong> {{ athlete.email }}
+        </div>
+        <div class="info-row">
+            <strong>Club:</strong> {{ athlete.club.name if athlete.club else 'Unassigned' }}
+        </div>
+        <div class="info-row">
+            <strong>Team:</strong> {{ athlete.team.name if athlete.team else 'Not assigned' }}
+        </div>
+        <div class="info-row">
+            <strong>Coach:</strong> {{ athlete.coach.full_name if athlete.coach else 'Not assigned' }}
+        </div>
+        <div class="info-row">
+            <strong>Program:</strong> 
+            {% if athlete.participates_snow_stars %}
+            <span class="badge badge-sport" style="background-color: #fef3c7; color: #854d0e;">Snow Stars</span>
+            {% else %}
+            <span style="color: var(--text-secondary);">Not enabled</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% set racing_evals = athlete.evaluations_received|selectattr('sport_type', 'equalto', 'snow_stars')|list %}
+    {% set highest_level = racing_evals|map(attribute='level')|list|max if racing_evals else 0 %}
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius);">
+        <h3>Progress Summary</h3>
+        <div style="margin-top: 1rem;">
+            <strong>Current Level:</strong> 
+            {% if highest_level > 0 %}
+            <span style="font-size: 1.2rem; color: var(--primary-color); font-weight: 600;">Snow Stars Level {{ highest_level }}</span>
+            {% else %}
+            <span style="color: var(--text-secondary);">Not started</span>
+            {% endif %}
+        </div>
+        <div style="margin-top: 0.5rem;">
+            <strong>Total Evaluations:</strong> {{ racing_evals|length }}
+        </div>
+    </div>
+
+    {% if evaluations %}
+    <div style="margin-top: 2rem;">
+        <h3>Evaluation History</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Level</th>
+                    <th>Coach</th>
+                    <th>Average Score</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eval in evaluations %}
+                <tr>
+                    <td>{{ eval.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>Snow Stars Level {{ eval.level }}</td>
+                    <td>{{ eval.coach.full_name }}</td>
+                    <td><strong>{{ eval.average_score }}/10</strong></td>
+                    <td>
+                        <a href="{{ url_for('view_evaluation', evaluation_id=eval.id) }}" class="btn btn-sm btn-secondary">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="margin-top: 2rem; padding: 2rem; text-align: center; color: var(--text-secondary);">
+        <p>No evaluations yet for this athlete.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('manage_athletes') }}" class="btn btn-secondary">← Back to Athletes</a>
+    </div>
+</div>
+{% endblock %}
+

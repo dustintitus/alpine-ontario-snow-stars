@@ -6,7 +6,9 @@
 <div class="dashboard-header">
     <h2>Admin Dashboard</h2>
     <div>
-        <a href="{{ url_for('register') }}" class="btn btn-primary">+ Add New User</a>
+        <a href="{{ url_for('manage_athletes') }}" class="btn btn-primary">Manage Athletes</a>
+        <a href="{{ url_for('register') }}" class="btn btn-secondary">+ Add Coach/Admin</a>
+        <a href="{{ url_for('manage_clubs') }}" class="btn btn-secondary">Manage Clubs</a>
         <a href="{{ url_for('manage_programs') }}" class="btn btn-secondary">Manage Programs</a>
         <a href="{{ url_for('manage_teams') }}" class="btn btn-secondary">Manage Teams</a>
     </div>
@@ -23,12 +25,12 @@
     </div>
     <div class="stat-card">
         <h3>{{ users|selectattr('user_type', 'equalto', 'student')|list|length }}</h3>
-        <p>Students</p>
+        <p>Athletes</p>
     </div>
 </div>
 
 <div class="card">
-    <h3>All Users</h3>
+    <h3>All Users (Admin & Coaches)</h3>
     <table class="data-table">
         <thead>
             <tr>
@@ -42,6 +44,7 @@
         </thead>
         <tbody>
             {% for user in users %}
+            {% if user.user_type != 'student' %}
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.username }}</td>
@@ -50,6 +53,7 @@
                 <td><span class="badge badge-{{ user.user_type }}">{{ user.user_type }}</span></td>
                 <td>{{ user.coach.full_name if user.coach else '-' }}</td>
             </tr>
+            {% endif %}
             {% endfor %}
         </tbody>
     </table>

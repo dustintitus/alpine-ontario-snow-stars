@@ -112,6 +112,7 @@ def initialize_database():
                         db.session.add(demo_team)
                         db.session.flush()
                     
+                    south_division = Division.query.filter_by(name='Southern Ontario Division').first()
                     student_user = User(
                         username='student1',
                         email='student@example.com',
@@ -122,6 +123,7 @@ def initialize_database():
                         coach_id=coach_user.id,
                         team_id=demo_team.id if demo_team else None,
                         program_id=u12_program.id,
+                        division_id=south_division.id if south_division else None,
                         club_id=aoa_club.id if aoa_club else None
                     )
                     db.session.add(student_user)

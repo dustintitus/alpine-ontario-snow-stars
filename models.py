@@ -60,9 +60,11 @@ class User(UserMixin, db.Model):
     participates_snow_stars = db.Column(db.Boolean, default=False)  # Can participate in Snow Stars
     coach_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id', use_alter=True), nullable=True)  # For students
+    program_id = db.Column(db.Integer, db.ForeignKey('program.id'), nullable=True)  # Direct program assignment for athletes
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
     coach = db.relationship('User', remote_side=[id], foreign_keys=[coach_id])
+    program = db.relationship('Program', backref='athletes', lazy=True)
     
     def __repr__(self):
         return f'<User {self.username}>'

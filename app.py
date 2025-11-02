@@ -82,12 +82,12 @@ def init_db():
             db.session.add(coach)
             db.session.flush()  # Get the coach ID
         
-        # Create team for Snowflakes program
-        snowflakes_program = Program.query.filter_by(name='Snowflakes').first()
-        if snowflakes_program and not Team.query.filter_by(name='Snowflakes Demo Team').first():
+        # Create team for U12 program
+        u12_program = Program.query.filter_by(name='U12').first()
+        if u12_program and not Team.query.filter_by(name='U12 Demo Team').first():
             team = Team(
-                name='Snowflakes Demo Team',
-                program_id=snowflakes_program.id,
+                name='U12 Demo Team',
+                program_id=u12_program.id,
                 coach_id=2,
                 team_type='team',
                 club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
@@ -96,19 +96,18 @@ def init_db():
             db.session.flush()  # Get the team ID
         
         # Create student
-        demo_team = Team.query.filter_by(name='Snowflakes Demo Team').first()
-        if not User.query.filter_by(username='student1').first() and demo_team:
+        demo_team = Team.query.filter_by(name='U12 Demo Team').first()
+        if not User.query.filter_by(username='student1').first() and demo_team and u12_program:
             student = User(
                 username='student1',
                 email='student@example.com',
                 password_hash=generate_password_hash('student123', method='pbkdf2:sha256'),
                 user_type='student',
                 full_name='John Doe',
-                participates_skier=True,
-                participates_snowboarder=True,  # Can participate in both
                 participates_snow_stars=True,
                 coach_id=2,
                 team_id=demo_team.id,
+                program_id=u12_program.id,
                 club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
             )
             db.session.add(student)
@@ -537,7 +536,8 @@ def manage_athletes():
     athletes = User.query.filter_by(user_type='student').all()
     teams = Team.query.all()
     clubs = Club.query.all()
-    return render_template('manage_athletes.html', athletes=athletes, teams=teams, clubs=clubs)
+    programs = Program.query.all()
+    return render_template('manage_athletes.html', athletes=athletes, teams=teams, clubs=clubs, programs=programs)
 
 @app.route('/admin/create_athlete', methods=['POST'])
 @login_required
@@ -551,12 +551,17 @@ def create_athlete():
     password = request.form.get('password')
     full_name = request.form.get('full_name')
     club_id = request.form.get('club_id')
+    program_id = request.form.get('program_id')
     team_id = request.form.get('team_id')
     coach_id = request.form.get('coach_id')
     participates_snow_stars = request.form.get('participates_snow_stars') == 'on'
     
     if User.query.filter_by(username=username).first():
         flash('Username already exists', 'error')
+        return redirect(url_for('manage_athletes'))
+    
+    if not program_id:
+        flash('Program is required', 'error')
         return redirect(url_for('manage_athletes'))
     
     new_athlete = User(
@@ -566,6 +571,7 @@ def create_athlete():
         full_name=full_name,
         user_type='student',
         club_id=int(club_id) if club_id else None,
+        program_id=int(program_id) if program_id else None,
         participates_snow_stars=participates_snow_stars,
         coach_id=int(coach_id) if coach_id else None,
         team_id=int(team_id) if team_id else None

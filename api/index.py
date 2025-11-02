@@ -84,13 +84,13 @@ def initialize_database():
             # Create student if coach exists
             student_user = User.query.filter_by(username='student1').first()
             if not student_user and coach_user:
-                snowflakes_program = Program.query.filter_by(name='Snowflakes').first()
-                if snowflakes_program:
-                    demo_team = Team.query.filter_by(name='Snowflakes Demo Team').first()
+                u12_program = Program.query.filter_by(name='U12').first()
+                if u12_program:
+                    demo_team = Team.query.filter_by(name='U12 Demo Team').first()
                     if not demo_team:
                         demo_team = Team(
-                            name='Snowflakes Demo Team',
-                            program_id=snowflakes_program.id,
+                            name='U12 Demo Team',
+                            program_id=u12_program.id,
                             coach_id=coach_user.id,
                             team_type='team',
                             club_id=aoa_club.id if aoa_club else None
@@ -107,6 +107,7 @@ def initialize_database():
                         participates_snow_stars=True,
                         coach_id=coach_user.id,
                         team_id=demo_team.id if demo_team else None,
+                        program_id=u12_program.id,
                         club_id=aoa_club.id if aoa_club else None
                     )
                     db.session.add(student_user)

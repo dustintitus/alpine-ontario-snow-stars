@@ -20,15 +20,23 @@
             <strong>Club:</strong> {{ athlete.club.name if athlete.club else 'Unassigned' }}
         </div>
         <div class="info-row">
+            <strong>Program:</strong> 
+            {% if athlete.program %}
+            <strong>{{ athlete.program.name }}</strong>
+            {% else %}
+            <span style="color: var(--error-color);">Not assigned</span>
+            {% endif %}
+        </div>
+        <div class="info-row">
             <strong>Team:</strong> {{ athlete.team.name if athlete.team else 'Not assigned' }}
         </div>
         <div class="info-row">
             <strong>Coach:</strong> {{ athlete.coach.full_name if athlete.coach else 'Not assigned' }}
         </div>
         <div class="info-row">
-            <strong>Program:</strong> 
+            <strong>Snow Stars:</strong> 
             {% if athlete.participates_snow_stars %}
-            <span class="badge badge-sport" style="background-color: #fef3c7; color: #854d0e;">Snow Stars</span>
+            <span class="badge badge-sport" style="background-color: #fef3c7; color: #854d0e;">Enabled</span>
             {% else %}
             <span style="color: var(--text-secondary);">Not enabled</span>
             {% endif %}

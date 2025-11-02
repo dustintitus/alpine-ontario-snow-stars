@@ -51,12 +51,10 @@ def init_db():
         
         # Create sample programs with frequency settings
         programs_data = [
-            ('Snowflakes', 'Early learning program for young beginners', 'weekly', 8, 'saturday'),
-            ('High Flyers', 'Advanced program for developing competitive skiers', 'daily', 8, None),
-            ('Trail Blazers', 'Multi-level program for progressive skill development', 'weekly', 6, 'sunday'),
-            ('LIT', 'Leader in Training program for aspiring coaches', 'daily', 10, None),
-            ('Adult', 'Program designed for adult skiers and snowboarders', 'weekly', 4, 'saturday'),
-            ('Terrain Park', 'Specialized program for terrain park and freestyle development', 'daily', 6, None)
+            ('U12', 'Under 12 racing program', 'weekly', 8, 'saturday'),
+            ('U14', 'Under 14 racing program', 'weekly', 8, 'saturday'),
+            ('U16', 'Under 16 racing program', 'daily', 8, None),
+            ('U18/U21', 'Under 18/21 racing program', 'daily', 10, None)
         ]
         
         for program_name, description, freq_type, freq_value, freq_days in programs_data:

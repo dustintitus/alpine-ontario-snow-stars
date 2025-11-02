@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 os.environ['FLASK_ENV'] = 'production'
 
 # Import the Flask app
-from app import app, db, User, Program
+from app import app, db, User, Program, Club, Team
 from werkzeug.security import generate_password_hash
 from datetime import date
 
@@ -25,105 +25,103 @@ def initialize_database():
             db.create_all()
             print("✓ Database tables created/verified")
             
-            # Always create users (in-memory database starts fresh each time)
+            # Create Alpine Ontario club
+            print("Creating clubs...")
+            aoa_club = Club.query.filter_by(name='Alpine Ontario').first()
+            if not aoa_club:
+                aoa_club = Club(name='Alpine Ontario', description='Provincial sport organization')
+                db.session.add(aoa_club)
+                db.session.flush()
+            
+            # Always create users (for production database, only create if they don't exist)
             print("Creating users...")
-            users = [
-                User(
+            admin_user = User.query.filter_by(username='admin').first()
+            if not admin_user:
+                admin_user = User(
                     username='admin',
-                    email='admin@snowschool.com',
-                    password_hash=generate_password_hash('password123', method='pbkdf2:sha256'),
+                    email='admin@example.com',
+                    password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'),
                     user_type='admin',
-                    full_name='Administrator'
-                ),
-                User(
-                    username='instructor1',
-                    email='instructor@snowschool.com',
-                    password_hash=generate_password_hash('password123', method='pbkdf2:sha256'),
-                    user_type='instructor',
-                    full_name='John Instructor'
-                ),
-                User(
-                    username='student1',
-                    email='student@snowschool.com',
-                    password_hash=generate_password_hash('password123', method='pbkdf2:sha256'),
-                    user_type='student',
-                    full_name='Jane Student'
+                    full_name='System Administrator',
+                    club_id=aoa_club.id if aoa_club else None
                 )
-            ]
+                db.session.add(admin_user)
             
-            # Clear existing users first (in case of reinitialization)
-            User.query.delete()
-            Program.query.delete()
-            
-            for user in users:
-                db.session.add(user)
+            coach_user = User.query.filter_by(username='coach1').first()
+            if not coach_user:
+                coach_user = User(
+                    username='coach1',
+                    email='coach@example.com',
+                    password_hash=generate_password_hash('coach123', method='pbkdf2:sha256'),
+                    user_type='coach',
+                    full_name='Coach Johnson'
+                )
+                db.session.add(coach_user)
+                db.session.flush()
             
             # Create programs
             print("Creating programs...")
-            programs = [
-                Program(
-                    name='Snowflakes',
-                    description='Beginner program for young skiers',
-                    frequency_type='consecutive',
-                    frequency_value=8,
-                    start_date=date.today(),
-                    end_date=None
-                ),
-                Program(
-                    name='High Flyers',
-                    description='Advanced skiing program',
-                    frequency_type='weekly',
-                    frequency_value=6,
-                    frequency_days='saturday',
-                    start_date=date.today(),
-                    end_date=None
-                ),
-                Program(
-                    name='Trail Blazers',
-                    description='Intermediate snowboarding',
-                    frequency_type='consecutive',
-                    frequency_value=8,
-                    start_date=date.today(),
-                    end_date=None
-                ),
-                Program(
-                    name='LIT',
-                    description='Leadership in Training program',
-                    frequency_type='custom',
-                    frequency_value=12,
-                    frequency_days='monday,wednesday,friday',
-                    start_date=date.today(),
-                    end_date=None
-                ),
-                Program(
-                    name='Adult',
-                    description='Adult skiing and snowboarding',
-                    frequency_type='weekly',
-                    frequency_value=8,
-                    frequency_days='sunday',
-                    start_date=date.today(),
-                    end_date=None
-                ),
-                Program(
-                    name='Terrain Park',
-                    description='Terrain park and freestyle program',
-                    frequency_type='consecutive',
-                    frequency_value=6,
-                    start_date=date.today(),
-                    end_date=None
-                )
+            programs_data = [
+                ('Snowflakes', 'Early learning program for young beginners', 'weekly', 8, 'saturday'),
+                ('High Flyers', 'Advanced program for developing competitive skiers', 'daily', 8, None),
+                ('Trail Blazers', 'Multi-level program for progressive skill development', 'weekly', 6, 'sunday'),
+                ('LIT', 'Leader in Training program for aspiring coaches', 'daily', 10, None),
+                ('Adult', 'Program designed for adult skiers and snowboarders', 'weekly', 4, 'saturday'),
+                ('Terrain Park', 'Specialized program for terrain park and freestyle development', 'daily', 6, None)
             ]
             
-            for program in programs:
-                db.session.add(program)
+            for program_name, description, freq_type, freq_value, freq_days in programs_data:
+                if not Program.query.filter_by(name=program_name).first():
+                    program = Program(
+                        name=program_name,
+                        description=description,
+                        frequency_type=freq_type,
+                        frequency_value=freq_value,
+                        frequency_days=freq_days
+                    )
+                    db.session.add(program)
+            
+            db.session.flush()
+            
+            # Create student if coach exists
+            student_user = User.query.filter_by(username='student1').first()
+            if not student_user and coach_user:
+                snowflakes_program = Program.query.filter_by(name='Snowflakes').first()
+                if snowflakes_program:
+                    demo_team = Team.query.filter_by(name='Snowflakes Demo Team').first()
+                    if not demo_team:
+                        demo_team = Team(
+                            name='Snowflakes Demo Team',
+                            program_id=snowflakes_program.id,
+                            coach_id=coach_user.id,
+                            team_type='team',
+                            club_id=aoa_club.id if aoa_club else None
+                        )
+                        db.session.add(demo_team)
+                        db.session.flush()
+                    
+                    student_user = User(
+                        username='student1',
+                        email='student@example.com',
+                        password_hash=generate_password_hash('student123', method='pbkdf2:sha256'),
+                        user_type='student',
+                        full_name='John Doe',
+                        participates_snow_stars=True,
+                        coach_id=coach_user.id,
+                        team_id=demo_team.id if demo_team else None,
+                        club_id=aoa_club.id if aoa_club else None
+                    )
+                    db.session.add(student_user)
             
             db.session.commit()
-            print("✓ Users and programs created")
+            print("✓ Users, clubs, and programs created")
             print("✓ Database initialization complete")
             return True
             
     except Exception as e:
+        import traceback
         print(f"Database initialization error: {e}")
+        print(traceback.format_exc())
         return False
 
 # Initialize database

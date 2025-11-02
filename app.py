@@ -150,23 +150,36 @@ def health():
 def login():
     if request.method == 'POST':
         try:
-            username = request.form.get('username')
-            password = request.form.get('password')
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '').strip()
             
             if not username or not password:
                 flash('Please enter both username and password', 'error')
                 return render_template('login.html')
             
+            app.logger.info(f"Login attempt for username: '{username}'")
             user = User.query.filter_by(username=username).first()
             
-            if user and check_password_hash(user.password_hash, password):
-                login_user(user)
-                flash('Login successful!', 'success')
-                return redirect(url_for('dashboard'))
+            if user:
+                app.logger.info(f"User found: {user.username} (type: {user.user_type})")
+                password_valid = check_password_hash(user.password_hash, password)
+                app.logger.info(f"Password check: {password_valid}")
+                
+                if password_valid:
+                    login_user(user)
+                    flash('Login successful!', 'success')
+                    return redirect(url_for('dashboard'))
+                else:
+                    flash('Invalid username or password', 'error')
             else:
+                app.logger.warning(f"User not found: '{username}'")
+                # Show available usernames in debug mode
+                if app.config.get('DEBUG'):
+                    all_usernames = [u.username for u in User.query.all()]
+                    app.logger.debug(f"Available usernames: {all_usernames}")
                 flash('Invalid username or password', 'error')
         except Exception as e:
-            app.logger.error(f"Login error: {e}")
+            app.logger.error(f"Login error: {e}", exc_info=True)
             flash('An error occurred during login. Please try again.', 'error')
     
     return render_template('login.html')

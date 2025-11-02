@@ -3,6 +3,18 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+class Division(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    users = db.relationship('User', backref='division', lazy=True)
+    programs = db.relationship('Program', backref='division', lazy=True)
+    
+    def __repr__(self):
+        return f'<Division {self.name}>'
+
 class Club(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
@@ -19,6 +31,7 @@ class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
+    division_id = db.Column(db.Integer, db.ForeignKey('division.id'), nullable=True)
     # Attendance frequency settings
     frequency_type = db.Column(db.String(20), nullable=False, default='daily')  # 'daily', 'weekly', 'custom'
     frequency_value = db.Column(db.Integer, nullable=False, default=8)  # Number of sessions
@@ -55,6 +68,7 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(100), nullable=False)
     user_type = db.Column(db.String(20), nullable=False)
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=True)
+    division_id = db.Column(db.Integer, db.ForeignKey('division.id'), nullable=True)
     participates_skier = db.Column(db.Boolean, default=False)  # Can participate in skiing
     participates_snowboarder = db.Column(db.Boolean, default=False)  # Can participate in snowboarding
     participates_snow_stars = db.Column(db.Boolean, default=False)  # Can participate in Snow Stars

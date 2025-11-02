@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, Evaluation, Program, Team, Attendance, Club
+from models import db, User, Evaluation, Program, Team, Attendance, Club, Division
 from datetime import datetime
 from config import config
 import logging
@@ -31,6 +31,17 @@ def init_db():
     with app.app_context():
         # Only create tables if they don't exist (production-safe)
         db.create_all()
+        
+        # Create divisions
+        if not Division.query.filter_by(name='Southern Ontario Division').first():
+            south_division = Division(name='Southern Ontario Division', description='Southern Ontario Division')
+            db.session.add(south_division)
+        
+        if not Division.query.filter_by(name='Northern Ontario Division').first():
+            north_division = Division(name='Northern Ontario Division', description='Northern Ontario Division')
+            db.session.add(north_division)
+        
+        db.session.flush()  # Get division IDs
         
         # Create example clubs
         if not Club.query.filter_by(name='Alpine Ontario').first():
@@ -97,6 +108,7 @@ def init_db():
         
         # Create student
         demo_team = Team.query.filter_by(name='U12 Demo Team').first()
+        south_division = Division.query.filter_by(name='Southern Ontario Division').first()
         if not User.query.filter_by(username='student1').first() and demo_team and u12_program:
             student = User(
                 username='student1',
@@ -108,6 +120,7 @@ def init_db():
                 coach_id=2,
                 team_id=demo_team.id,
                 program_id=u12_program.id,
+                division_id=south_division.id if south_division else None,
                 club_id=Club.query.filter_by(name='Alpine Ontario').first().id if Club.query.filter_by(name='Alpine Ontario').first() else None
             )
             db.session.add(student)
@@ -232,6 +245,7 @@ def register():
         coach_id = request.form.get('coach_id')
         team_id = request.form.get('team_id')
         club_id = request.form.get('club_id')
+        division_id = request.form.get('division_id')
         participates_skier = request.form.get('participates_skier') == 'on'
         participates_snowboarder = request.form.get('participates_snowboarder') == 'on'
         participates_snow_stars = request.form.get('participates_snow_stars') == 'on'
@@ -242,7 +256,8 @@ def register():
             teams = Team.query.all()
             programs = Program.query.all()
             clubs = Club.query.all()
-            return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs)
+            divisions = Division.query.all()
+            return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs, divisions=divisions)
         
         new_user = User(
             username=username,
@@ -251,6 +266,7 @@ def register():
             full_name=full_name,
             user_type=user_type,
             club_id=int(club_id) if club_id else None,
+            division_id=int(division_id) if division_id else None,
             participates_skier=participates_skier if user_type == 'student' else False,
             participates_snowboarder=participates_snowboarder if user_type == 'student' else False,
             participates_snow_stars=participates_snow_stars if user_type == 'student' else False,
@@ -267,7 +283,8 @@ def register():
     teams = Team.query.all()
     programs = Program.query.all()
     clubs = Club.query.all()
-    return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs)
+    divisions = Division.query.all()
+    return render_template('register.html', coaches=coaches, teams=teams, programs=programs, clubs=clubs, divisions=divisions)
 
 @app.route('/evaluate/<int:student_id>', methods=['GET', 'POST'])
 @login_required
@@ -392,7 +409,8 @@ def manage_programs():
         return redirect(url_for('dashboard'))
     
     programs = Program.query.all()
-    return render_template('manage_programs.html', programs=programs)
+    divisions = Division.query.all()
+    return render_template('manage_programs.html', programs=programs, divisions=divisions)
 
 @app.route('/admin/teams')
 @login_required
@@ -434,6 +452,7 @@ def create_program():
     
     name = request.form.get('name')
     description = request.form.get('description')
+    division_id = request.form.get('division_id')
     frequency_type = request.form.get('frequency_type', 'consecutive')
     frequency_value = int(request.form.get('frequency_value', 8))
     frequency_days = request.form.get('frequency_days', None)
@@ -447,6 +466,7 @@ def create_program():
     program = Program(
         name=name, 
         description=description,
+        division_id=int(division_id) if division_id else None,
         frequency_type=frequency_type,
         frequency_value=frequency_value,
         frequency_days=frequency_days,
@@ -469,6 +489,8 @@ def update_program(program_id):
     
     program.name = request.form.get('name')
     program.description = request.form.get('description')
+    division_id = request.form.get('division_id')
+    program.division_id = int(division_id) if division_id else None
     program.frequency_type = request.form.get('frequency_type', 'consecutive')
     program.frequency_value = int(request.form.get('frequency_value', 8))
     program.frequency_days = request.form.get('frequency_days', None)
@@ -537,7 +559,8 @@ def manage_athletes():
     teams = Team.query.all()
     clubs = Club.query.all()
     programs = Program.query.all()
-    return render_template('manage_athletes.html', athletes=athletes, teams=teams, clubs=clubs, programs=programs)
+    divisions = Division.query.all()
+    return render_template('manage_athletes.html', athletes=athletes, teams=teams, clubs=clubs, programs=programs, divisions=divisions)
 
 @app.route('/admin/create_athlete', methods=['POST'])
 @login_required
@@ -551,6 +574,7 @@ def create_athlete():
     password = request.form.get('password')
     full_name = request.form.get('full_name')
     club_id = request.form.get('club_id')
+    division_id = request.form.get('division_id')
     program_id = request.form.get('program_id')
     team_id = request.form.get('team_id')
     coach_id = request.form.get('coach_id')
@@ -571,6 +595,7 @@ def create_athlete():
         full_name=full_name,
         user_type='student',
         club_id=int(club_id) if club_id else None,
+        division_id=int(division_id) if division_id else None,
         program_id=int(program_id) if program_id else None,
         participates_snow_stars=participates_snow_stars,
         coach_id=int(coach_id) if coach_id else None,

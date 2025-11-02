@@ -20,6 +20,9 @@
             <strong>Club:</strong> {{ athlete.club.name if athlete.club else 'Unassigned' }}
         </div>
         <div class="info-row">
+            <strong>Division:</strong> {{ athlete.division.name if athlete.division else 'Unassigned' }}
+        </div>
+        <div class="info-row">
             <strong>Program:</strong> 
             {% if athlete.program %}
             <strong>{{ athlete.program.name }}</strong>

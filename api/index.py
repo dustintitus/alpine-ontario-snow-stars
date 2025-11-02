@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 os.environ['FLASK_ENV'] = 'production'
 
 # Import the Flask app
-from app import app, db, User, Program, Club, Team
+from app import app, db, User, Program, Club, Team, Division
 from werkzeug.security import generate_password_hash
 from datetime import date
 
@@ -24,6 +24,20 @@ def initialize_database():
             # Create all tables
             db.create_all()
             print("✓ Database tables created/verified")
+            
+            # Create divisions
+            print("Creating divisions...")
+            south_division = Division.query.filter_by(name='Southern Ontario Division').first()
+            if not south_division:
+                south_division = Division(name='Southern Ontario Division', description='Southern Ontario Division')
+                db.session.add(south_division)
+            
+            north_division = Division.query.filter_by(name='Northern Ontario Division').first()
+            if not north_division:
+                north_division = Division(name='Northern Ontario Division', description='Northern Ontario Division')
+                db.session.add(north_division)
+            
+            db.session.flush()
             
             # Create Alpine Ontario club
             print("Creating clubs...")

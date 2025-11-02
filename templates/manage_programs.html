@@ -19,6 +19,15 @@
             <label for="description">Description</label>
             <textarea id="description" name="description" rows="3"></textarea>
         </div>
+        <div class="form-group">
+            <label for="division_id">Division</label>
+            <select id="division_id" name="division_id">
+                <option value="">Unassigned</option>
+                {% for division in divisions %}
+                <option value="{{ division.id }}">{{ division.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         
         <!-- Program Schedule Section -->
         <div class="form-section">
@@ -88,6 +97,7 @@
             <tr>
                 <th>Name</th>
                 <th>Description</th>
+                <th>Division</th>
                 <th>Schedule</th>
                 <th>Teams</th>
                 <th>Actions</th>
@@ -108,12 +118,22 @@
                                 <label for="description-{{ program.id }}">Description</label>
                                 <textarea id="description-{{ program.id }}" name="description" rows="2">{{ program.description }}</textarea>
                             </div>
+                            <div class="form-group">
+                                <label for="division_id-{{ program.id }}">Division</label>
+                                <select id="division_id-{{ program.id }}" name="division_id">
+                                    <option value="">Unassigned</option>
+                                    {% for division in divisions %}
+                                    <option value="{{ division.id }}" {% if program.division_id == division.id %}selected{% endif %}>{{ division.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                             <button type="submit" class="btn btn-sm btn-primary">Save</button>
                             <button type="button" onclick="toggleEdit({{ program.id }})" class="btn btn-sm btn-secondary">Cancel</button>
                         </form>
                     </div>
                 </td>
                 <td>{{ program.description }}</td>
+                <td>{{ program.division.name if program.division else '-' }}</td>
                 <td>
                     <div class="schedule-info">
                         <strong>{{ program.frequency_type.title() }}</strong>

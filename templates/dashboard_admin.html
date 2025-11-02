@@ -5,9 +5,9 @@
 {% block content %}
 <div class="dashboard-header">
     <h2>Admin Dashboard</h2>
-    <div>
+    <div class="dashboard-actions">
         <a href="{{ url_for('manage_athletes') }}" class="btn btn-primary">Manage Athletes</a>
-        <a href="{{ url_for('register') }}" class="btn btn-secondary">+ Add Coach/Admin</a>
+        <a href="{{ url_for('register') }}" class="btn btn-secondary">Manage Coach/Admin</a>
         <a href="{{ url_for('manage_clubs') }}" class="btn btn-secondary">Manage Clubs</a>
         <a href="{{ url_for('manage_programs') }}" class="btn btn-secondary">Manage Programs</a>
         <a href="{{ url_for('manage_teams') }}" class="btn btn-secondary">Manage Teams</a>

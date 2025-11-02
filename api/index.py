@@ -96,7 +96,7 @@ def initialize_database():
             db.session.flush()
             
             # Create student if coach exists
-            student_user = User.query.filter_by(username='student1').first()
+            student_user = User.query.filter_by(username='athlete1').first()
             if not student_user and coach_user:
                 u12_program = Program.query.filter_by(name='U12').first()
                 if u12_program:
@@ -114,9 +114,9 @@ def initialize_database():
                     
                     south_division = Division.query.filter_by(name='Southern Ontario Division').first()
                     student_user = User(
-                        username='student1',
-                        email='student@example.com',
-                        password_hash=generate_password_hash('student123', method='pbkdf2:sha256'),
+                        username='athlete1',
+                        email='athlete@example.com',
+                        password_hash=generate_password_hash('athlete123', method='pbkdf2:sha256'),
                         user_type='student',
                         full_name='John Doe',
                         participates_snow_stars=True,

@@ -109,11 +109,11 @@ def init_db():
         # Create student
         demo_team = Team.query.filter_by(name='U12 Demo Team').first()
         south_division = Division.query.filter_by(name='Southern Ontario Division').first()
-        if not User.query.filter_by(username='student1').first() and demo_team and u12_program:
+        if not User.query.filter_by(username='athlete1').first() and demo_team and u12_program:
             student = User(
-                username='student1',
-                email='student@example.com',
-                password_hash=generate_password_hash('student123', method='pbkdf2:sha256'),
+                username='athlete1',
+                email='athlete@example.com',
+                password_hash=generate_password_hash('athlete123', method='pbkdf2:sha256'),
                 user_type='student',
                 full_name='John Doe',
                 participates_snow_stars=True,
